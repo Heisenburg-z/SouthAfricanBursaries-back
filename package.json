@@ -1,0 +1,37 @@
+{
+  "name": "student-opportunities-backend",
+  "version": "1.0.0",
+  "description": "Backend for Student Opportunities Portal",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "express-validator": "^7.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^7.8.7",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.10.1",
+    "validator": "^13.15.15"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Heisenburg-z/SouthAfricanBursaries-back.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Heisenburg-z/SouthAfricanBursaries-back/issues"
+  },
+  "homepage": "https://github.com/Heisenburg-z/SouthAfricanBursaries-back#readme"
+}
