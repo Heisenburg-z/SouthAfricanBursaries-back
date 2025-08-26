@@ -25,6 +25,9 @@ const register = async (req, res) => {
     });
 
     if (user) {
+      // Send welcome email (don't await to avoid blocking response)
+      sendWelcomeEmail(email, `${firstName} ${lastName}`);
+      
       res.status(201).json({
         _id: user._id,
         firstName: user.firstName,
