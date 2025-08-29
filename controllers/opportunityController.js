@@ -2,12 +2,12 @@ const Opportunity = require('../models/Opportunity');
 
 const getOpportunities = async (req, res) => {
   try {
-    const { type, page = 1, limit = 10, search } = req.query;
+    const { category, page = 1, limit = 10, search } = req.query;
     
     let query = { isActive: true };
     
-    if (type) {
-      query.type = type;
+    if (category) {
+      query.category = category;
     }
     
     if (search) {
