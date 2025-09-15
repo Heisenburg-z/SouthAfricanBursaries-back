@@ -26,7 +26,9 @@ const applicationSchema = new mongoose.Schema({
   }],
   documents: [{
     name: String,
-    path: String
+    firebaseName: String,  // Firebase storage path
+    downloadURL: String,   // Firebase download URL
+    uploadedAt: Date
   }],
   notes: String
 }, {

@@ -68,12 +68,23 @@ const userSchema = new mongoose.Schema({
   skills: [String],
   resume: {
     filename: String,
-    path: String
+    firebaseName: String,  // Firebase storage path
+    downloadURL: String,   // Firebase download URL
+    uploadedAt: Date
   },
   profilePhoto: {
     filename: String,
-    path: String
+    firebaseName: String,  // Firebase storage path
+    downloadURL: String,   // Firebase download URL
+    uploadedAt: Date
   },
+  transcripts: [{
+    filename: String,
+    firebaseName: String,  // Firebase storage path
+    downloadURL: String,   // Firebase download URL
+    uploadedAt: Date,
+    description: String
+  }],
   isAdmin: {
     type: Boolean,
     default: false

@@ -1,6 +1,7 @@
 const Application = require('../models/Application');
 const Opportunity = require('../models/Opportunity');
 const User = require('../models/User');
+const { uploadToFirebase } = require('../utils/firebaseUpload');
 
 const getApplications = async (req, res) => {
   try {
@@ -62,7 +63,7 @@ const getApplication = async (req, res) => {
 
 const createApplication = async (req, res) => {
   try {
-    const { opportunityId, answers, documents } = req.body;
+    const { opportunityId, answers } = req.body;
     
     // Check if opportunity exists
     const opportunity = await Opportunity.findById(opportunityId);
@@ -83,6 +84,20 @@ const createApplication = async (req, res) => {
     // Check if application deadline has passed
     if (new Date() > opportunity.applicationDeadline) {
       return res.status(400).json({ message: 'Application deadline has passed' });
+    }
+    
+    // Handle file uploads if any
+    let documents = [];
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        const fileInfo = await uploadToFirebase(file, 'application-documents');
+        documents.push({
+          name: fileInfo.filename,
+          firebaseName: fileInfo.firebaseName,
+          downloadURL: fileInfo.downloadURL,
+          uploadedAt: new Date()
+        });
+      }
     }
     
     const application = new Application({
