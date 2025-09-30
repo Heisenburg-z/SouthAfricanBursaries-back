@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { sendWelcomeEmail } = require('../utils/emailService');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -9,7 +10,7 @@ const generateToken = (id) => {
 
 const register = async (req, res) => {
   try {
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, email, password, phone, dateOfBirth, idNumber, gender, race, address, education } = req.body;
 
     const userExists = await User.findOne({ email });
 
@@ -21,7 +22,14 @@ const register = async (req, res) => {
       firstName,
       lastName,
       email,
-      password
+      password,
+      phone,
+      dateOfBirth,
+      idNumber,
+      gender,
+      race,
+      address,
+      education
     });
 
     if (user) {
@@ -38,14 +46,26 @@ const register = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Registration error:', error);
+    if (error.code === 11000) {
+      return res.status(400).json({ message: 'Email already exists' });
+    }
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({ message: errors.join(', ') });
+    }
+    res.status(500).json({ message: 'Server error during registration' });
   }
 };
 
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    // Check if email and password are provided
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Please provide email and password' });
+    }
 
     const user = await User.findOne({ email }).select('+password');
 
@@ -56,14 +76,15 @@ const login = async (req, res) => {
         lastName: user.lastName,
         email: user.email,
         isAdmin: user.isAdmin,
+        profilePhoto: user.profilePhoto,
         token: generateToken(user._id),
       });
     } else {
       res.status(401).json({ message: 'Invalid email or password' });
     }
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Login error:', error);
+    res.status(500).json({ message: 'Server error during login' });
   }
 };
 
@@ -72,7 +93,7 @@ const getProfile = async (req, res) => {
     const user = await User.findById(req.user.id);
     res.json(user);
   } catch (error) {
-    console.error(error);
+    console.error('Get profile error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -92,22 +113,16 @@ const updateProfile = async (req, res) => {
       user.race = req.body.race || user.race;
       
       if (req.body.address) {
-        user.address.street = req.body.address.street || user.address.street;
-        user.address.city = req.body.address.city || user.address.city;
-        user.address.province = req.body.address.province || user.address.province;
-        user.address.postalCode = req.body.address.postalCode || user.address.postalCode;
+        user.address = { ...user.address, ...req.body.address };
       }
       
       if (req.body.education) {
-        user.education.institution = req.body.education.institution || user.education.institution;
-        user.education.qualification = req.body.education.qualification || user.education.qualification;
-        user.education.fieldOfStudy = req.body.education.fieldOfStudy || user.education.fieldOfStudy;
-        user.education.yearOfStudy = req.body.education.yearOfStudy || user.education.yearOfStudy;
-        user.education.graduationYear = req.body.education.graduationYear || user.education.graduationYear;
-        user.education.averageMarks = req.body.education.averageMarks || user.education.averageMarks;
+        user.education = { ...user.education, ...req.body.education };
       }
       
-      user.skills = req.body.skills || user.skills;
+      if (req.body.skills) {
+        user.skills = req.body.skills;
+      }
 
       const updatedUser = await user.save();
 
@@ -117,13 +132,17 @@ const updateProfile = async (req, res) => {
         lastName: updatedUser.lastName,
         email: updatedUser.email,
         isAdmin: updatedUser.isAdmin,
+        profilePhoto: updatedUser.profilePhoto,
         token: generateToken(updatedUser._id),
       });
     } else {
       res.status(404).json({ message: 'User not found' });
     }
   } catch (error) {
-    console.error(error);
+    console.error('Update profile error:', error);
+    if (error.code === 11000) {
+      return res.status(400).json({ message: 'Email already exists' });
+    }
     res.status(500).json({ message: 'Server error' });
   }
 };

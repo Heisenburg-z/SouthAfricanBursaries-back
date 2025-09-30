@@ -1,83 +1,55 @@
-const validateUserRegistration = (req, res, next) => {
-  const { firstName, lastName, email, password } = req.body;
-  const errors = [];
+const { body, validationResult } = require('express-validator');
 
-  if (!firstName || firstName.trim() === '') {
-    errors.push('First name is required');
+const handleValidationErrors = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ 
+      message: 'Validation failed', 
+      errors: errors.array() 
+    });
   }
-  
-  if (!lastName || lastName.trim() === '') {
-    errors.push('Last name is required');
-  }
-  
-  if (!email || !/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
-    errors.push('Please include a valid email');
-  }
-  
-  if (!password || password.length < 6) {
-    errors.push('Password must be at least 6 characters');
-  }
-  
-  if (errors.length > 0) {
-    return res.status(400).json({ errors });
-  }
-  
   next();
 };
 
-const validateUserLogin = (req, res, next) => {
-  const { email, password } = req.body;
-  const errors = [];
+const validateRegistration = [
+  body('firstName')
+    .notEmpty()
+    .withMessage('First name is required')
+    .isLength({ max: 50 })
+    .withMessage('First name must be less than 50 characters'),
+  
+  body('lastName')
+    .notEmpty()
+    .withMessage('Last name is required')
+    .isLength({ max: 50 })
+    .withMessage('Last name must be less than 50 characters'),
+  
+  body('email')
+    .isEmail()
+    .withMessage('Please enter a valid email')
+    .normalizeEmail(),
+  
+  body('password')
+    .isLength({ min: 6 })
+    .withMessage('Password must be at least 6 characters'),
+  
+  handleValidationErrors
+];
 
-  if (!email || !/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
-    errors.push('Please include a valid email');
-  }
+const validateLogin = [
+  body('email')
+    .isEmail()
+    .withMessage('Please enter a valid email')
+    .normalizeEmail(),
   
-  if (!password) {
-    errors.push('Password is required');
-  }
+  body('password')
+    .notEmpty()
+    .withMessage('Password is required'),
   
-  if (errors.length > 0) {
-    return res.status(400).json({ errors });
-  }
-  
-  next();
-};
-
-const validateOpportunity = (req, res, next) => {
-  const { title, description, type, provider, applicationDeadline } = req.body;
-  const errors = [];
-  const validTypes = ['Bursary', 'Internship', 'Graduate Program', 'Learnership'];
-
-  if (!title || title.trim() === '') {
-    errors.push('Title is required');
-  }
-  
-  if (!description || description.trim() === '') {
-    errors.push('Description is required');
-  }
-  
-  if (!type || !validTypes.includes(type)) {
-    errors.push('Invalid opportunity type');
-  }
-  
-  if (!provider || provider.trim() === '') {
-    errors.push('Provider is required');
-  }
-  
-  if (!applicationDeadline || isNaN(Date.parse(applicationDeadline))) {
-    errors.push('Valid application deadline is required');
-  }
-  
-  if (errors.length > 0) {
-    return res.status(400).json({ errors });
-  }
-  
-  next();
-};
+  handleValidationErrors
+];
 
 module.exports = {
-  validateUserRegistration,
-  validateUserLogin,
-  validateOpportunity
+  validateRegistration,
+  validateLogin
 };
