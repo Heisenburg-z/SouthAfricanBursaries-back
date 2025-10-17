@@ -49,7 +49,52 @@ const validateLogin = [
   handleValidationErrors
 ];
 
+const validateOpportunity = [
+  body('title')
+    .notEmpty()
+    .withMessage('Title is required')
+    .isLength({ max: 100 })
+    .withMessage('Title must be less than 100 characters'),
+  
+  body('description')
+    .notEmpty()
+    .withMessage('Description is required'),
+  
+  body('category')
+    .notEmpty()
+    .withMessage('Category is required')
+    .isIn(['bursary', 'internship', 'graduate', 'learnership'])
+    .withMessage('Invalid category'),
+  
+  body('field')
+    .notEmpty()
+    .withMessage('Field is required'),
+  
+  body('provider')
+    .notEmpty()
+    .withMessage('Provider is required'),
+  
+  body('applicationDeadline')
+    .notEmpty()
+    .withMessage('Application deadline is required')
+    .isISO8601()
+    .withMessage('Invalid date format'),
+  
+  body('location')
+    .notEmpty()
+    .withMessage('Location is required'),
+  
+  handleValidationErrors
+];
+
+// Aliases for auth routes
+const validateUserRegistration = validateRegistration;
+const validateUserLogin = validateLogin;
+
 module.exports = {
   validateRegistration,
-  validateLogin
+  validateLogin,
+  validateUserRegistration,
+  validateUserLogin,
+  validateOpportunity
 };
