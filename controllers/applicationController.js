@@ -3,6 +3,19 @@ const Opportunity = require('../models/Opportunity');
 const User = require('../models/User');
 const { uploadToFirebase } = require('../utils/firebaseUpload');
 
+const getMyApplications = async (req, res) => {
+  try {
+    const applications = await Application.find({ applicant: req.user.id })
+      .populate('opportunity')
+      .sort({ applicationDate: -1 });
+    
+    res.json({ applications });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 const getApplications = async (req, res) => {
   try {
     const { status, page = 1, limit = 10 } = req.query;
@@ -23,7 +36,7 @@ const getApplications = async (req, res) => {
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .populate('applicant', 'firstName lastName email')
-      .populate('opportunity', 'title provider type');
+      .populate('opportunity', 'title provider category applicationDeadline');
     
     const total = await Application.countDocuments(query);
     
@@ -146,6 +159,7 @@ const updateApplicationStatus = async (req, res) => {
 };
 
 module.exports = {
+  getMyApplications,
   getApplications,
   getApplication,
   createApplication,

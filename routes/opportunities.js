@@ -1,5 +1,6 @@
 const express = require('express');
 const {
+   getUpcomingDeadlines,
   getOpportunities,
   getOpportunity,
   createOpportunity,
@@ -11,6 +12,7 @@ const { validateOpportunity } = require('../middleware/validation');
 
 const router = express.Router();
 
+router.get('/upcoming-deadlines', getUpcomingDeadlines); 
 router.get('/', getOpportunities);
 router.get('/:id', getOpportunity);
 router.post('/', protect, admin, validateOpportunity, createOpportunity);

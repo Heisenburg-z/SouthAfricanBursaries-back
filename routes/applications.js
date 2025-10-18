@@ -1,5 +1,6 @@
 const express = require('express');
 const {
+  getMyApplications,
   getApplications,
   getApplication,
   createApplication,
@@ -9,6 +10,7 @@ const { protect, admin } = require('../middleware/auth');
 
 const router = express.Router();
 
+router.get('/my-applications', protect, getMyApplications);
 router.get('/', protect, getApplications);
 router.get('/:id', protect, getApplication);
 router.post('/', protect, createApplication);
