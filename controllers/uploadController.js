@@ -82,7 +82,28 @@ const uploadResume = async (req, res) => {
     res.status(500).json({ message: 'Server error during upload' });
   }
 };
+// Upload general document for applications
+const uploadDocument = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
 
+    // Upload document to Firebase
+    const fileInfo = await uploadToFirebase(req.file, 'application-documents');
+    
+    res.json({
+      message: 'Document uploaded successfully',
+      filename: fileInfo.filename,
+      firebaseName: fileInfo.firebaseName,
+      downloadURL: fileInfo.downloadURL,
+      uploadedAt: new Date()
+    });
+  } catch (error) {
+    console.error('Document upload error:', error);
+    res.status(500).json({ message: 'Server error during document upload: ' + error.message });
+  }
+};
 // Upload transcript
 const uploadTranscript = async (req, res) => {
   try {
@@ -159,5 +180,6 @@ module.exports = {
   uploadResume,
   uploadTranscript,
   deleteTranscript,
-  getUserFiles
+  getUserFiles,
+  uploadDocument
 };
