@@ -2,7 +2,7 @@ const { storage } = require('../config/firebase');
 const { ref, uploadBytes, getDownloadURL, deleteObject } = require('firebase/storage');
 const multer = require('multer');
 
-// Configure multer for memory storage (files will be stored in memory before uploading to Firebase)
+// Configure multer for memory storage
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
@@ -29,9 +29,17 @@ function checkFileType(file, cb) {
 // Upload file to Firebase Storage
 const uploadToFirebase = async (file, folder = 'general') => {
   try {
-    // Create a unique filename
+    // Create a unique filename with user ID if available
     const timestamp = Date.now();
-    const filename = `${folder}/${timestamp}_${file.originalname}`;
+    let filename;
+    
+    if (folder && file.originalname) {
+      filename = `${folder}/${timestamp}_${file.originalname.replace(/\s+/g, '_')}`;
+    } else {
+      filename = `general/${timestamp}_${file.originalname}`;
+    }
+    
+    console.log('Uploading file to Firebase:', filename);
     
     // Create a storage reference
     const storageRef = ref(storage, filename);
@@ -41,8 +49,12 @@ const uploadToFirebase = async (file, folder = 'general') => {
       contentType: file.mimetype,
     });
     
+    console.log('File uploaded successfully, getting download URL...');
+    
     // Get the download URL
     const downloadURL = await getDownloadURL(snapshot.ref);
+    
+    console.log('Download URL obtained:', downloadURL);
     
     return {
       filename: file.originalname,
@@ -53,22 +65,34 @@ const uploadToFirebase = async (file, folder = 'general') => {
     };
   } catch (error) {
     console.error('Error uploading to Firebase:', error);
-    throw new Error('File upload failed');
+    console.error('Error details:', {
+      code: error.code,
+      message: error.message,
+      stack: error.stack
+    });
+    throw new Error(`File upload failed: ${error.message}`);
   }
 };
 
 // Delete file from Firebase Storage
 const deleteFromFirebase = async (firebaseName) => {
   try {
+    console.log('Deleting file from Firebase:', firebaseName);
+    
     // Create a reference to the file to delete
     const desertRef = ref(storage, firebaseName);
 
     // Delete the file
     await deleteObject(desertRef);
     console.log('File deleted successfully from Firebase');
+    return true;
   } catch (error) {
     console.error('Error deleting from Firebase:', error);
-    throw new Error('File deletion failed');
+    console.error('Error details:', {
+      code: error.code,
+      message: error.message
+    });
+    throw new Error(`File deletion failed: ${error.message}`);
   }
 };
 
