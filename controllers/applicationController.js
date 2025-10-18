@@ -3,10 +3,11 @@ const Opportunity = require('../models/Opportunity');
 const User = require('../models/User');
 const { uploadToFirebase } = require('../utils/firebaseUpload');
 
+// Add this new function for user's applications
 const getMyApplications = async (req, res) => {
   try {
     const applications = await Application.find({ applicant: req.user.id })
-      .populate('opportunity')
+      .populate('opportunity', 'title provider category applicationDeadline')
       .sort({ applicationDate: -1 });
     
     res.json({ applications });
@@ -129,7 +130,7 @@ const createApplication = async (req, res) => {
     // Populate and return the application
     const populatedApplication = await Application.findById(savedApplication._id)
       .populate('applicant', 'firstName lastName email')
-      .populate('opportunity', 'title provider type');
+      .populate('opportunity', 'title provider category applicationDeadline');
     
     res.status(201).json(populatedApplication);
   } catch (error) {
@@ -159,7 +160,7 @@ const updateApplicationStatus = async (req, res) => {
 };
 
 module.exports = {
-  getMyApplications,
+  getMyApplications, // Add this export
   getApplications,
   getApplication,
   createApplication,

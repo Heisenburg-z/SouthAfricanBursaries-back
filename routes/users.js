@@ -1,4 +1,5 @@
 const express = require('express');
+const User = require('../models/User'); // Add this import
 const {
   getUsers,
   getUser,
@@ -15,6 +16,10 @@ router.get('/profile/complete', protect, async (req, res) => {
   try {
     const user = await User.findById(req.user.id)
       .select('-password -resetPasswordToken -resetPasswordExpire -verificationToken');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
     
     // Calculate profile completion percentage
     const profileCompletion = calculateProfileCompletion(user);
@@ -48,6 +53,7 @@ function calculateProfileCompletion(user) {
   return Math.round((completedFields / totalFields) * 100);
 }
 
+// Existing routes
 router.get('/', protect, admin, getUsers);
 router.get('/:id', protect, admin, getUser);
 router.get('/:id/applications', protect, getUserApplications);

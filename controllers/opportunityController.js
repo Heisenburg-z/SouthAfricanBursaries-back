@@ -32,6 +32,7 @@ const getUpcomingDeadlines = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 // Helper function to calculate days left
 function calculateDaysLeft(deadline) {
   const today = new Date();
@@ -40,6 +41,7 @@ function calculateDaysLeft(deadline) {
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   return diffDays > 0 ? diffDays : 0;
 }
+
 const getOpportunities = async (req, res) => {
   try {
     const { category, page = 1, limit = 10, search } = req.query;
@@ -61,8 +63,7 @@ const getOpportunities = async (req, res) => {
     const opportunities = await Opportunity.find(query)
       .sort({ applicationDeadline: 1 })
       .limit(limit * 1)
-      .skip((page - 1) * limit)
-      .populate('applications');
+      .skip((page - 1) * limit);
     
     const total = await Opportunity.countDocuments(query);
     
@@ -80,8 +81,7 @@ const getOpportunities = async (req, res) => {
 
 const getOpportunity = async (req, res) => {
   try {
-    const opportunity = await Opportunity.findById(req.params.id)
-      .populate('applications');
+    const opportunity = await Opportunity.findById(req.params.id);
     
     if (!opportunity) {
       return res.status(404).json({ message: 'Opportunity not found' });
@@ -145,7 +145,7 @@ const deleteOpportunity = async (req, res) => {
 };
 
 module.exports = {
-  getUpcomingDeadlines,
+  getUpcomingDeadlines, // Add this export
   getOpportunities,
   getOpportunity,
   createOpportunity,
