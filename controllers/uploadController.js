@@ -82,26 +82,33 @@ const uploadResume = async (req, res) => {
     res.status(500).json({ message: 'Server error during upload' });
   }
 };
-// Upload general document for applications
+// Add this to your uploadController.js for document uploads
 const uploadDocument = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
 
-    // Upload document to Firebase
-    const fileInfo = await uploadToFirebase(req.file, 'application-documents');
+    const userId = req.user.id;
+    const { opportunityId } = req.body; // You'll need to pass this from frontend
+    
+    if (!opportunityId) {
+      return res.status(400).json({ message: 'Opportunity ID is required' });
+    }
+
+    const firebasePath = `applications/${userId}/${opportunityId}/${req.file.originalname}`;
+    
+    const fileInfo = await uploadToFirebase(req.file, firebasePath);
     
     res.json({
-      message: 'Document uploaded successfully',
-      filename: fileInfo.filename,
+      filename: req.file.originalname,
       firebaseName: fileInfo.firebaseName,
       downloadURL: fileInfo.downloadURL,
       uploadedAt: new Date()
     });
   } catch (error) {
     console.error('Document upload error:', error);
-    res.status(500).json({ message: 'Server error during document upload: ' + error.message });
+    res.status(500).json({ message: 'File upload failed' });
   }
 };
 // Upload transcript
