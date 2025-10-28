@@ -5,7 +5,7 @@ const {
   bulkOpportunityOperation,
   exportData,
   getAnalytics
-} = require('../controllers/adminController');
+} = require('../controllers/ adminController');
 const { protect, admin } = require('../middleware/auth');
 
 const router = express.Router();
