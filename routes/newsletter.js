@@ -35,7 +35,10 @@ router.post('/subscribe', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
-
+router.get('/subscribers', protect, admin, async (req, res)  => {
+const subscribers = await Newsletter.find().sort({ subscribedAt: -1 });
+res.json(subscribers);
+});
 router.post('/unsubscribe', async (req, res) => {
   try {
     const { email } = req.body;

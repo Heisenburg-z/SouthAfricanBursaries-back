@@ -12,6 +12,8 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
   console.log('Created uploads directory');
 } 
+const adminRoutes = require('./routes/admin');
+
 
 // Load env vars
 dotenv.config();
@@ -37,6 +39,7 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/profile', require('./routes/profile'));
 app.use('/api/newsletter', require('./routes/newsletter'));
 app.use('/api/uploads', require('./routes/uploads'));
+app.use('/api/admin', adminRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
