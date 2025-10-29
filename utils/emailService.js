@@ -1,21 +1,21 @@
 const { Resend } = require('resend');
-
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+///////////////////////////////
+// ---- Helper: Single send
+///////////////////////////////
 const sendEmail = async ({ to, subject, html }) => {
   try {
     const { data, error } = await resend.emails.send({
       from: `${process.env.FROM_NAME || 'Student Opportunities'} <${process.env.FROM_EMAIL || 'onboarding@resend.dev'}>`,
       to: Array.isArray(to) ? to : [to],
       subject,
-      html
+      html,
     });
-
     if (error) {
       console.error('❌ Resend Error:', error);
       throw error;
     }
-
     console.log(`✅ Email sent to ${to}: ${subject}`);
     return { success: true, data };
   } catch (error) {
@@ -24,137 +24,50 @@ const sendEmail = async ({ to, subject, html }) => {
   }
 };
 
-// Welcome email template
-const sendWelcomeEmail = async (user) => {
+///////////////////////////////
+// ---- Welcome Email (long, professional)
+///////////////////////////////
+const sendWelcomeEmail = async user => {
   const html = `
-    <!DOCTYPE html>
-    <html>
+  <!DOCTYPE html>
+  <html>
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-          line-height: 1.6; 
-          color: #1f2937;
-          background: #f3f4f6;
-          padding: 20px;
-        }
-        .container { 
-          max-width: 600px; 
-          margin: 0 auto; 
-          background: white;
-          border-radius: 16px;
-          overflow: hidden;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .header { 
-          background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
-          color: white; 
-          padding: 40px 30px; 
-          text-align: center;
-        }
-        .header h1 {
-          font-size: 28px;
-          margin-bottom: 10px;
-        }
-        .content { 
-          padding: 40px 30px;
-          background: white;
-        }
-        .content h2 {
-          color: #10b981;
-          font-size: 24px;
-          margin-bottom: 20px;
-        }
-        .content p {
-          margin-bottom: 15px;
-          color: #4b5563;
-        }
-        .features {
-          background: #f0fdf4;
-          border-left: 4px solid #10b981;
-          padding: 20px;
-          margin: 25px 0;
-          border-radius: 8px;
-        }
-        .features ul {
-          list-style: none;
-          padding: 0;
-        }
-        .features li {
-          padding: 8px 0;
-          padding-left: 25px;
-          position: relative;
-        }
-        .features li:before {
-          content: "✓";
-          position: absolute;
-          left: 0;
-          color: #10b981;
-          font-weight: bold;
-        }
-        .button { 
-          display: inline-block; 
-          background: #10b981;
-          color: white !important; 
-          padding: 14px 32px; 
-          text-decoration: none; 
-          border-radius: 8px; 
-          margin: 25px 0;
-          font-weight: 600;
-          text-align: center;
-        }
-        .button:hover {
-          background: #059669;
-        }
-        .tips {
-          background: #eff6ff;
-          border-radius: 8px;
-          padding: 20px;
-          margin: 25px 0;
-        }
-        .tips h3 {
-          color: #1e40af;
-          margin-bottom: 15px;
-          font-size: 18px;
-        }
-        .tips ol {
-          padding-left: 20px;
-          color: #4b5563;
-        }
-        .tips li {
-          margin-bottom: 8px;
-        }
-        .footer { 
-          text-align: center; 
-          padding: 30px;
-          background: #f9fafb;
-          color: #6b7280; 
-          font-size: 13px;
-          border-top: 1px solid #e5e7eb;
-        }
-        .footer a {
-          color: #10b981;
-          text-decoration: none;
-        }
+        body { font-family: Arial, sans-serif; background:#f3f4f6; color: #1f2937; margin:0; padding:0; }
+        .container { max-width:600px; margin:0 auto; background:#fff; border-radius:16px; box-shadow:0 4px 6px rgba(0,0,0,0.08); overflow:hidden; }
+        .header { background:linear-gradient(135deg, #10b981 0, #059669 100%); color:#fff; text-align:center; padding:40px 30px; }
+        .header h1 { font-size:28px; margin-bottom:10px; }
+        .content { padding:40px 30px; background:#fff; }
+        .content h2 { color:#10b981; font-size:24px; margin-bottom:20px; }
+        .content p { margin-bottom:15px; color:#4b5563; }
+        .features { background:#f0fdf4; border-left:4px solid #10b981; padding:20px; margin:25px 0; border-radius:8px; }
+        .features ul { list-style:none; padding:0; }
+        .features li { padding:8px 0 8px 25px; position:relative; }
+        .features li::before { content: "✓"; position:absolute; left:0; color:#10b981; font-weight:bold; }
+        .button { display:inline-block; background:#10b981; color:#fff !important; padding:14px 32px; text-decoration:none; border-radius:8px; margin:25px 0; font-weight:600; text-align:center; }
+        .button:hover { background:#059669; }
+        .tips { background:#eff6ff; border-radius:8px; padding:20px; margin:25px 0; }
+        .tips h3 { color:#1e40af; margin-bottom:15px; font-size:18px; }
+        .tips ol { padding-left:20px; color:#4b5563; }
+        .tips li { margin-bottom:8px; }
+        .footer { text-align:center; padding:30px; background:#f9fafb; color:#6b7280; font-size:13px; border-top:1px solid #e5e7eb; }
+        .footer a { color:#10b981; text-decoration:none; }
       </style>
     </head>
-    <body>
+    <body style="padding:20px;">
       <div class="container">
         <div class="header">
-          <h1>🎓 Welcome Aboard!</h1>
-          <p style="font-size: 16px; margin: 0;">You're now part of South Africa's #1 Student Platform</p>
+          <h1>Welcome Aboard!</h1>
+          <p style="font-size:16px; margin:0;">You're now part of South Africa's #1 Student Platform</p>
         </div>
-        
         <div class="content">
-          <h2>Hi ${user.firstName}! 👋</h2>
+          <h2>Hi ${user.firstName || ''}!</h2>
           <p>We're absolutely thrilled to have you join our growing community of ambitious South African students!</p>
-          
           <div class="features">
-            <strong style="color: #10b981; font-size: 16px;">🚀 Here's what you can do now:</strong>
-            <ul style="margin-top: 15px;">
+            <strong style="color:#10b981; font-size:16px;">Here's what you can do now:</strong>
+            <ul style="margin-top:15px;">
               <li>Browse 55+ verified opportunities from top SA companies</li>
               <li>Apply for bursaries, internships, and graduate programs</li>
               <li>Track all your applications in one place</li>
@@ -162,13 +75,9 @@ const sendWelcomeEmail = async (user) => {
               <li>Get deadline reminders so you never miss out</li>
             </ul>
           </div>
-
           <div style="text-align: center;">
-            <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard" class="button">
-              🎯 Go to Your Dashboard
-            </a>
+            <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard" class="button">Go to Your Dashboard</a>
           </div>
-
           <div class="tips">
             <h3>💡 Quick Tips to Get Started</h3>
             <ol>
@@ -178,216 +87,45 @@ const sendWelcomeEmail = async (user) => {
               <li><strong>Check Daily</strong> - New opportunities are added regularly</li>
             </ol>
           </div>
-
-          <p><strong>Need help?</strong> We're here for you! Simply reply to this email or check out our Help Center.</p>
-          
-          <p style="margin-top: 30px;">
-            Wishing you all the best on your journey to success! 🚀<br>
-            <em style="color: #6b7280;">The Student Opportunities Team</em>
-          </p>
+          <p><strong>Need help?</strong> We're here for you! Simply reply to this email or check out our <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/help">Help Center</a>.</p>
+          <p style="margin-top:30px;">Wishing you all the best on your journey to success!<br><em style="color:#6b7280">The Student Opportunities Team</em></p>
         </div>
-        
         <div class="footer">
           <p><strong>Student Opportunities Portal</strong></p>
-          <p style="margin-top: 5px;">South Africa's Premier Student Career Platform</p>
-          <p style="margin-top: 15px;">
-            You're receiving this because you registered at 
-            <a href="${process.env.FRONTEND_URL}">${process.env.FRONTEND_URL || 'Student Opportunities Portal'}</a>
-          </p>
-          <p style="margin-top: 10px;">
-            <a href="${process.env.FRONTEND_URL}/unsubscribe">Unsubscribe</a> | 
-            <a href="${process.env.FRONTEND_URL}/privacy">Privacy Policy</a>
-          </p>
+          <p style="margin-top:5px;">South Africa's Premier Student Career Platform</p>
+          <p style="margin-top:15px;">You're receiving this because you registered at <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}">Student Opportunities Portal</a></p>
+          <p style="margin-top:10px;"><a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/unsubscribe?email=${user.email}">Unsubscribe</a> | <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/privacy">Privacy Policy</a></p>
         </div>
       </div>
     </body>
-    </html>
+  </html>
   `;
-
   return sendEmail({
     to: user.email,
-    subject: '🎓 Welcome to Student Opportunities Portal - Let\'s Get Started!',
+    subject: "Welcome to Student Opportunities Portal - Let's Get Started!",
     html
   });
 };
 
-// Application confirmation email
+///////////////////////////////
+// ---- Application Confirmation Email (can keep default)
+///////////////////////////////
 const sendApplicationConfirmation = async (user, opportunity) => {
   const html = `
-    <!DOCTYPE html>
     <html>
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          line-height: 1.6; 
-          color: #1f2937;
-          background: #f3f4f6;
-          padding: 20px;
-        }
-        .container { 
-          max-width: 600px; 
-          margin: 0 auto; 
-          background: white;
-          border-radius: 16px;
-          overflow: hidden;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .header { 
-          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); 
-          color: white; 
-          padding: 40px 30px; 
-          text-align: center;
-        }
-        .header h1 {
-          font-size: 28px;
-          margin-bottom: 10px;
-        }
-        .content { 
-          padding: 40px 30px;
-        }
-        .success-badge {
-          background: #dcfce7;
-          border: 2px solid #10b981;
-          color: #065f46;
-          padding: 15px;
-          border-radius: 10px;
-          text-align: center;
-          margin: 20px 0;
-          font-weight: 600;
-        }
-        .opportunity-box { 
-          background: #f0fdf4;
-          border-left: 4px solid #10b981;
-          padding: 20px;
-          margin: 25px 0;
-          border-radius: 8px;
-        }
-        .opportunity-box h3 {
-          color: #10b981;
-          margin-bottom: 15px;
-        }
-        .detail-row {
-          display: flex;
-          justify-content: space-between;
-          padding: 8px 0;
-          border-bottom: 1px solid #e5e7eb;
-        }
-        .detail-row:last-child {
-          border-bottom: none;
-        }
-        .button { 
-          display: inline-block; 
-          background: #10b981;
-          color: white !important; 
-          padding: 14px 32px; 
-          text-decoration: none; 
-          border-radius: 8px; 
-          margin: 25px 0;
-          font-weight: 600;
-        }
-        .steps {
-          background: #eff6ff;
-          padding: 20px;
-          border-radius: 8px;
-          margin: 25px 0;
-        }
-        .steps ol {
-          padding-left: 20px;
-          color: #4b5563;
-        }
-        .steps li {
-          margin-bottom: 10px;
-        }
-        .footer { 
-          text-align: center; 
-          padding: 30px;
-          background: #f9fafb;
-          color: #6b7280; 
-          font-size: 13px;
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <h1>✅ Application Submitted!</h1>
-          <p>Your application is on its way</p>
-        </div>
-        
-        <div class="content">
-          <h2 style="color: #10b981;">Hi ${user.firstName}! 🎉</h2>
-          
-          <div class="success-badge">
-            ✓ Your application has been successfully submitted and is being processed
-          </div>
-          
-          <div class="opportunity-box">
-            <h3>${opportunity.title}</h3>
-            <div class="detail-row">
-              <span><strong>Provider:</strong></span>
-              <span>${opportunity.provider}</span>
-            </div>
-            <div class="detail-row">
-              <span><strong>Category:</strong></span>
-              <span style="text-transform: capitalize;">${opportunity.category}</span>
-            </div>
-            <div class="detail-row">
-              <span><strong>Location:</strong></span>
-              <span>${opportunity.location}</span>
-            </div>
-            <div class="detail-row">
-              <span><strong>Submitted:</strong></span>
-              <span>${new Date().toLocaleDateString('en-ZA', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}</span>
-            </div>
-          </div>
-
-          <div class="steps">
-            <strong style="color: #1e40af; font-size: 16px;">📋 What Happens Next?</strong>
-            <ol style="margin-top: 15px;">
-              <li>Your application will be reviewed by <strong>${opportunity.provider}</strong></li>
-              <li>You'll receive email updates on your application status</li>
-              <li>Track your progress anytime in your dashboard</li>
-              <li>If shortlisted, you'll be contacted for the next steps</li>
-            </ol>
-          </div>
-
-          <div style="text-align: center;">
-            <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard" class="button">
-              📊 View My Applications
-            </a>
-          </div>
-
-          <p style="background: #fef3c7; padding: 15px; border-radius: 8px; margin: 25px 0; border-left: 4px solid #f59e0b;">
-            <strong>💡 Pro Tip:</strong> Don't put all your eggs in one basket! 
-            Continue applying to more opportunities to maximize your chances of success.
-          </p>
-          
-          <p style="margin-top: 30px;">
-            We're rooting for you! Good luck! 🍀<br>
-            <em style="color: #6b7280;">The Student Opportunities Team</em>
-          </p>
-        </div>
-        
-        <div class="footer">
-          <p><strong>Student Opportunities Portal</strong></p>
-          <p style="margin-top: 10px;">
-            <a href="${process.env.FRONTEND_URL}/dashboard" style="color: #10b981;">Dashboard</a> | 
-            <a href="${process.env.FRONTEND_URL}/help" style="color: #10b981;">Help Center</a>
-          </p>
-        </div>
+    <body style="font-family:Arial,sans-serif;padding:32px;">
+      <div style="max-width:600px;margin:auto;background:#fff;padding:32px;border-radius:12px;">
+        <h1 style="color:#10b981;">✅ Application Submitted!</h1>
+        <p>Hi ${user.firstName},<br>
+        We've received your application for <b>${opportunity.title}</b> at <b>${opportunity.provider}</b>.</p>
+        <p>
+          Check the status anytime in your dashboard.<br>
+          <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/dashboard" style="background:#10b981;color:#fff;padding:11px 26px;border-radius:7px;text-decoration:none;font-weight:bold;">View My Applications</a>
+        </p>
       </div>
     </body>
     </html>
   `;
-
   return sendEmail({
     to: user.email,
     subject: `✅ Application Submitted: ${opportunity.title}`,
@@ -395,75 +133,70 @@ const sendApplicationConfirmation = async (user, opportunity) => {
   });
 };
 
-// Newsletter - send to multiple recipients
+///////////////////////////////
+// ---- Professional Newsletter Send (long, rate-limited 2/sec)
+///////////////////////////////
 const sendNewsletter = async (subscribers, subject, content) => {
-  try {
-    // Resend supports batch sending
-    const batchSize = 100; // Send in batches of 100
-    const batches = [];
-    
-    for (let i = 0; i < subscribers.length; i += batchSize) {
-      batches.push(subscribers.slice(i, i + batchSize));
-    }
-
-    let successful = 0;
-    let failed = 0;
-
-    for (const batch of batches) {
-      const emailPromises = batch.map(subscriber => {
+  let successful = 0;
+  let failed = 0;
+  const batchSize = 2; // 2 per second for Resend
+  for (let i = 0; i < subscribers.length; i += batchSize) {
+    const batch = subscribers.slice(i, i + batchSize);
+    await Promise.all(
+      batch.map(async sub => {
         const html = `
-          <!DOCTYPE html>
-          <html>
+        <!DOCTYPE html>
+        <html>
           <head>
             <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <style>
-              body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; background: #f3f4f6; padding: 20px; }
-              .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 16px; overflow: hidden; }
-              .header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 40px 30px; text-align: center; }
-              .content { padding: 40px 30px; }
-              .footer { text-align: center; padding: 20px; background: #f9fafb; color: #6b7280; font-size: 12px; }
-              a { color: #10b981; text-decoration: none; }
+              body { font-family: Arial, sans-serif; background:#f3f4f6; color: #1f2937; margin:0; padding:0; }
+              .container { max-width:600px; margin:0 auto; background:#fff; border-radius:16px; box-shadow:0 4px 6px rgba(0,0,0,0.08); overflow:hidden; }
+              .header { background:linear-gradient(135deg, #10b981 0, #059669 100%); color:#fff; text-align:center; padding:40px 30px; }
+              .header h1 { font-size:26px; margin-bottom:10px; }
+              .content { padding:40px 30px; background:#fff; }
+              .footer { text-align:center; padding:20px; background:#f9fafb; color:#6b7280; font-size:12px;}
+              .footer a { color:#10b981; text-decoration:none; }
             </style>
           </head>
-          <body>
+          <body style="padding:20px;">
             <div class="container">
               <div class="header">
-                <h1>📬 ${subject}</h1>
+                <h1>${subject}</h1>
               </div>
               <div class="content">
                 ${content}
               </div>
               <div class="footer">
                 <p><strong>Student Opportunities Portal</strong></p>
-                <p style="margin-top: 10px;">
-                  <a href="${process.env.FRONTEND_URL}/unsubscribe?email=${subscriber.email}">Unsubscribe</a>
-                </p>
+                <p style="margin-top:10px;"><a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/unsubscribe?email=${sub.email}">Unsubscribe</a></p>
               </div>
             </div>
           </body>
-          </html>
+        </html>
         `;
-
-        return sendEmail({
-          to: subscriber.email,
-          subject,
-          html
-        });
-      });
-
-      const results = await Promise.allSettled(emailPromises);
-      successful += results.filter(r => r.status === 'fulfilled').length;
-      failed += results.filter(r => r.status === 'rejected').length;
+        try {
+          await sendEmail({
+            to: sub.email,
+            subject,
+            html
+          });
+          successful++;
+        } catch {
+          failed++;
+        }
+      })
+    );
+    if (i + batchSize < subscribers.length) {
+      await new Promise(res => setTimeout(res, 1000));
     }
-
-    console.log(`📧 Newsletter sent: ${successful} successful, ${failed} failed out of ${subscribers.length}`);
-    return { successful, failed, total: subscribers.length };
-  } catch (error) {
-    console.error('Newsletter error:', error);
-    throw error;
   }
+  console.log(`📧 Newsletter sent: ${successful} successful, ${failed} failed out of ${subscribers.length}`);
+  return { successful, failed, total: subscribers.length };
 };
 
+// ==== EXPORTS ====
 module.exports = {
   sendEmail,
   sendWelcomeEmail,

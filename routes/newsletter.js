@@ -77,6 +77,7 @@ router.post('/send', protect, admin, async (req, res) => {
       return res.status(400).json({ message: 'No subscribers to send to.' });
     }
     const stats = await sendNewsletter(subscribers, subject, content);
+
     res.json({
       message: `Newsletter sent: ${stats.successful} of ${stats.total} successful.`,
       success: true,
@@ -89,3 +90,4 @@ router.post('/send', protect, admin, async (req, res) => {
 });
 
 module.exports = router;
+
